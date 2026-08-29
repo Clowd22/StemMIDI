@@ -13,3 +13,6 @@ numpy>=2.0
 
 # YouTube 音声取得
 yt-dlp
+
+# テスト
+pytest

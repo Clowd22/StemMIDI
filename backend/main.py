@@ -6,6 +6,8 @@ import time
 import uuid
 from pathlib import Path
 
+import librosa
+import numpy as np
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
@@ -61,6 +63,18 @@ def cleanup_temp_files(max_age_hours: float = 24.0) -> None:
             pass  # 削除に失敗しても処理を継続
 
 
+def validate_audio(input_path: str) -> None:
+    """音声ファイルの妥当性を検証し、問題があれば 400 エラーを返す。"""
+    try:
+        y, _ = librosa.load(input_path, sr=22050, mono=True)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=400, detail="音声ファイルを読み込めませんでした"
+        ) from exc
+    if len(y) == 0 or float(np.sqrt(np.mean(y**2))) < 1e-4:
+        raise HTTPException(status_code=400, detail="無音の音声ファイルです")
+
+
 def run_pipeline(file_id: str, input_path: str, title: str = "") -> dict:
     """
     音声ファイルを解析し、結果を返す共通パイプライン。
@@ -71,6 +85,9 @@ def run_pipeline(file_id: str, input_path: str, title: str = "") -> dict:
     midi_dir = work_dir / "midi"
     stems_dir.mkdir(parents=True, exist_ok=True)
     midi_dir.mkdir(parents=True, exist_ok=True)
+
+    # 入力音声の妥当性を検証（デコード不能・無音は 400 エラー）
+    validate_audio(input_path)
 
     # 1. 音源分離（Bass / Drums / Other）
     stem_files = separator.separate_audio(input_path, str(stems_dir))
@@ -127,6 +144,8 @@ async def analyze_audio(file: UploadFile = File(...)):
 
     try:
         return run_pipeline(file_id, str(input_path), title=safe_name)
+    except HTTPException:
+        raise  # バリデーションエラー（400）はそのまま返す
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"解析に失敗しました: {exc}") from exc
 
@@ -148,6 +167,8 @@ async def analyze_youtube(url: str = Form(...)):
         result = run_pipeline(file_id, info["path"], title=info["title"])
         result["youtube_id"] = info["id"]  # フロントエンドの YouTube 埋め込み用
         return result
+    except HTTPException:
+        raise  # バリデーションエラー（400）はそのまま返す
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"解析に失敗しました: {exc}") from exc
 

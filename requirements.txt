@@ -10,3 +10,6 @@ basic-pitch>=0.4.0
 librosa
 mido
 numpy>=2.0
+
+# YouTube 音声取得
+yt-dlp

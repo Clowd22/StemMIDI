@@ -15,7 +15,7 @@ def separate_audio(
     output_dir: str,
     model_name: str = "htdemucs",
     device: str | None = None,
-    verbose: bool = False,
+    progress: bool = False,
 ) -> List[str]:
     """
     音声ファイルを Demucs で分離し、指定ディレクトリに WAV として保存する。
@@ -25,14 +25,14 @@ def separate_audio(
         output_dir: 分離結果の保存先ディレクトリ。
         model_name: Demucs モデル名（デフォルト: htdemucs）。
         device: 推論デバイス（"cpu" / "cuda"）。None なら自動選択。
-        verbose: Demucs のログ出力を有効にするか。
+        progress: 分離の進捗表示を有効にするか。
 
     Returns:
         生成されたステム WAV ファイルのパス一覧（bass / drums / other）。
     """
     os.makedirs(output_dir, exist_ok=True)
 
-    separator = demucs.api.Separator(model=model_name, device=device or "cpu", verbose=verbose)
+    separator = demucs.api.Separator(model=model_name, device=device or "cpu", progress=progress)
     # Demucs は (原音波形, {ステム名: 波形}) を返す
     _, separated = separator.separate_audio_file(input_path)
 

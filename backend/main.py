@@ -1,6 +1,7 @@
 """FastAPI バックエンドアプリケーション。"""
 from __future__ import annotations
 
+import os
 import shutil
 import time
 import uuid
@@ -31,11 +32,20 @@ app = FastAPI(
     description="音源からコード・ベース・ビートを解析し、マルチトラック MIDI を生成する API",
 )
 
-# 開発用 CORS 設定
+# CORS 設定
+# 環境変数 ALLOWED_ORIGINS（カンマ区切り）で許可オリジンを指定できる。
+# 未指定の場合は全てのオリジン（*）を許可する（開発・Cloudflare Tunnel 公開用）。
+_ALLOWED_ORIGINS_RAW = os.environ.get("ALLOWED_ORIGINS", "").strip()
+ALLOWED_ORIGINS: list[str] = (
+    [o.strip() for o in _ALLOWED_ORIGINS_RAW.split(",") if o.strip()]
+    if _ALLOWED_ORIGINS_RAW
+    else ["*"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )

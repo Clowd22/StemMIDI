@@ -1,0 +1,11 @@
+{
+  "name": "stemmidi",
+  "version": "1.0.0",
+  "private": true,
+  "description": "StemMIDI — 音源からコード・ベース・ビートを解析してマルチトラック MIDI を生成する Web アプリ",
+  "scripts": {
+    "tunnel": "sh scripts/start_tunnel.sh",
+    "server": ".venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000 --reload",
+    "test": ".venv/bin/python -m pytest"
+  }
+}

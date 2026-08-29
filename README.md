@@ -113,6 +113,24 @@ docker run -p 8000:8000 stemmidi
 - `temp/` は解析用の一時領域として利用され、古いファイルは自動でクリーンアップされます
 - Render では `render.yaml` を利用して Docker デプロイできます
 
+## 外部公開（Cloudflare Tunnel）
+
+ローカルで起動したサーバーを、Cloudflare Tunnel で一時的な公開 URL として外部公開できます。
+
+```bash
+# cloudflared をインストール（初回のみ）
+brew install cloudflared
+
+# uvicorn と cloudflared を同時に起動（一時的な公開 URL が発行される）
+sh scripts/start_tunnel.sh
+# または
+npm run tunnel
+```
+
+- 公開 URL は `https://<ランダム>.trycloudflare.com` 形式で、トンネルを停止すると無効になります
+- CORS はデフォルトで全オリジンを許可しています（環境変数 `ALLOWED_ORIGINS` で制限可能）
+- 停止するには Ctrl+C を押します（uvicorn も同時に停止します）
+
 ## テスト（サンプル音源）
 
 ```bash

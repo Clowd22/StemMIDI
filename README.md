@@ -7,7 +7,8 @@
 - **コード解析**: librosa のクロマグラム + テンプレートマッチングでコード進行を推定
 - **ビート検出**: librosa でテンポ（BPM）とビートを検出
 - **MIDI 生成**: コード・ベース・ビートを統合した 4 トラック MIDI を出力
-- **Web UI**: ドラッグ＆ドロップでアップロード → コードタイムライン / ピアノロールを可視化
+- **YouTube 解析**: yt-dlp で YouTube 動画から直接音声を取得して解析
+- **Web UI**: DAW 風のダーク UI。波形・コードタイムライン・ピアノロールを再生に同期して表示
 
 ## 技術スタック
 
@@ -16,6 +17,7 @@
 | バックエンド | FastAPI, Uvicorn |
 | 音源分離 | Demucs 4.x (PyTorch) |
 | Audio-to-MIDI | Basic Pitch 0.4.0 (Core ML) |
+| YouTube 取得 | yt-dlp |
 | 音声処理 | librosa 0.11, numpy |
 | MIDI | mido, pretty-midi |
 | フロントエンド | HTML / CSS / JavaScript (Canvas) |
@@ -82,6 +84,13 @@ uvicorn backend.main:app --host 127.0.0.1 --port 8000
 }
 ```
 
+### `POST /api/analyze-youtube`
+
+YouTube の URL を指定して解析を実行します。
+
+- リクエスト: `multipart/form-data` の `url` フィールド
+- レスポンス: `POST /api/analyze` と同形式 + `youtube_id`（埋め込みプレイヤー用）
+
 ### `GET /api/download-midi/{file_id}`
 
 生成されたマルチトラック MIDI ファイルをダウンロードします。
@@ -91,6 +100,18 @@ uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ### `GET /`
 
 フロントエンド（index.html）を配信します。
+
+## デプロイ（Docker / Render）
+
+```bash
+# Docker イメージをビルドして実行
+docker build -t stemmidi .
+docker run -p 8000:8000 stemmidi
+```
+
+- Python 3.11 + ffmpeg が含まれます（yt-dlp の音声変換に必要）
+- `temp/` は解析用の一時領域として利用され、古いファイルは自動でクリーンアップされます
+- Render では `render.yaml` を利用して Docker デプロイできます
 
 ## テスト（サンプル音源）
 

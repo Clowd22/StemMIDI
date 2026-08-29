@@ -1,0 +1,11 @@
+# Render.com 用デプロイ設定
+# 参考: https://render.com/docs/deploy-an-existing-dockerfile
+services:
+  - type: web
+    name: stemmidi
+    runtime: docker
+    plan: starter
+    healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8000

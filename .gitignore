@@ -1,0 +1,22 @@
+# Python
+.venv/
+.venv-py313-backup/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# 一時ファイル・アップロード処理
+temp/
+uploads/
+
+# OS
+.DS_Store
+
+# IDE
+.idea/
+.vscode/
+
+# モデルキャッシュ
+*.onnx
+basic_pitch/

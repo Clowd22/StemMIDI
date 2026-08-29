@@ -1,0 +1,12 @@
+# バックエンド
+fastapi
+uvicorn
+python-multipart
+pydantic
+
+# 音楽解析・AI
+demucs
+basic-pitch>=0.4.0
+librosa
+mido
+numpy>=2.0
